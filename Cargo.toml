@@ -1,6 +1,6 @@
 [package]
 name = "tokio-task-pool"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Serhij S. <div@altertech.com>"]
 edition = "2021"
 license = "MIT"
