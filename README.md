@@ -30,7 +30,7 @@ sooner or later causes memory overflow.
 * Use task spawning but manually limit the number of active tasks with a
 semaphore
 
-* Use this crate which does the job automatically
+* Use this crate which does the job out-of-the-box
 
 ## Features provided
 
