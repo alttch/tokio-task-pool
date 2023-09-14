@@ -56,6 +56,11 @@ pool.spawn(async move {
 });
 ```
 
-## More features
+## More tricks
 
 Refer to the crate documentation.
+
+## Features
+
+* A "log" feature enables automatic error logging for timed out tasks (via the
+*log* crate)
