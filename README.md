@@ -41,7 +41,7 @@ semaphore
 
 ## Code example
 
-Simple spawning is pretty similar to tokio:;spawn, but async because the
+Simple spawning is pretty similar to tokio::spawn, but async because the
 producer must be blocked until there is an empty task slot in the pool:
 
 ```rust
