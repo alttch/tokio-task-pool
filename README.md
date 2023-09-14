@@ -14,7 +14,7 @@ loop {
     tokio::spawn(async move {
         process(socket).await;
     });
-    }
+}
 ```
 
 is actually an anti-pattern which may break your production.
