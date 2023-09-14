@@ -25,9 +25,10 @@ sooner or later causes memory overflow.
 
 ## Solution
 
-* Use pool of workers instead
+* Use a pool of workers instead
 
-* Use task spawning but limit the number of active tasks with a semaphore
+* Use task spawning but manually limit the number of active tasks with a
+semaphore
 
 * Use this crate which does the job automatically
 
