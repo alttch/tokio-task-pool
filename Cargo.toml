@@ -1,6 +1,6 @@
 [package]
 name = "tokio-task-pool"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Serhij S. <div@altertech.com>"]
 edition = "2021"
 license = "MIT"
@@ -10,5 +10,5 @@ readme = "README.md"
 keywords = ["tokio", "task", "safe", "pool"]
 
 [dependencies]
-log = "0.4.20"
+log = { version = "0.4.20", optional = true }
 tokio = { version = "1.32.0", features = ["full"] }

@@ -1,4 +1,5 @@
 #![ doc = include_str!( concat!( env!( "CARGO_MANIFEST_DIR" ), "/", "README.md" ) ) ]
+#[cfg(feature = "log")]
 use log::error;
 use std::fmt;
 use std::future::Future;
@@ -116,6 +117,7 @@ pub struct Pool {
     run_timeout: Option<Duration>,
     limiter: Option<Arc<Semaphore>>,
     capacity: Option<usize>,
+    #[cfg(feature = "log")]
     logging_enabled: bool,
 }
 
@@ -134,6 +136,7 @@ impl Pool {
             run_timeout: None,
             limiter: Some(Arc::new(Semaphore::new(capacity))),
             capacity: Some(capacity),
+            #[cfg(feature = "log")]
             logging_enabled: true,
         }
     }
@@ -145,6 +148,7 @@ impl Pool {
             run_timeout: None,
             limiter: None,
             capacity: None,
+            #[cfg(feature = "log")]
             logging_enabled: true,
         }
     }
@@ -174,6 +178,7 @@ impl Pool {
     pub fn with_timeout(self, timeout: Duration) -> Self {
         self.with_spawn_timeout(timeout).with_run_timeout(timeout)
     }
+    #[cfg(feature = "log")]
     /// Disables internal error logging_enabled
     #[inline]
     pub fn with_no_logging_enabled(mut self) -> Self {
@@ -225,6 +230,7 @@ impl Pool {
         T: Future + Send + 'static,
         T::Output: Send + 'static,
     {
+        #[cfg(feature = "log")]
         let id = self.id.as_ref().cloned();
         let perm = if let Some(ref limiter) = self.limiter {
             if let Some(spawn_timeout) = self.spawn_timeout {
@@ -240,6 +246,7 @@ impl Pool {
             None
         };
         if let Some(rtimeout) = task.timeout.or(self.run_timeout) {
+            #[cfg(feature = "log")]
             let logging_enabled = self.logging_enabled;
             Ok(tokio::spawn(async move {
                 let _p = perm;
@@ -247,6 +254,7 @@ impl Pool {
                     Ok(v)
                 } else {
                     let e = Error::RunTimeout(task.id);
+                    #[cfg(feature = "log")]
                     if logging_enabled {
                         error!("{}: {}", id.as_deref().map_or("", |v| v.as_str()), e);
                     }
