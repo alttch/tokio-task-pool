@@ -1,0 +1,14 @@
+[package]
+name = "tokio-task-pool"
+version = "0.1.0"
+authors = ["Serhij S. <div@altertech.com>"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/alttch/tokio-task-pool"
+description = "Task pool for Tokio Runtime"
+readme = "README.md"
+keywords = ["tokio", "task", "safe", "pool"]
+
+[dependencies]
+log = "0.4.20"
+tokio = { version = "1.32.0", features = ["full"] }
