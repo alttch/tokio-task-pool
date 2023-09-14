@@ -111,7 +111,7 @@ impl From<tokio::sync::AcquireError> for Error {
 }
 
 /// Task pool
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Pool {
     id: Option<Arc<String>>,
     spawn_timeout: Option<Duration>,
