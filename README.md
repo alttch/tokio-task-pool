@@ -48,12 +48,15 @@ producer must be blocked until there is an empty task slot in the pool:
 use std::time::Duration;
 use tokio_task_pool::Pool;
 
-let pool = Pool::bounded(5)
-    .with_spawn_timeout(Duration::from_secs(5))
-    .with_run_timeout(Duration::from_secs(10));
-pool.spawn(async move {
-    // do some job
-});
+#[tokio::main]
+async fn main() {
+    let pool = Pool::bounded(5)
+        .with_spawn_timeout(Duration::from_secs(5))
+        .with_run_timeout(Duration::from_secs(10));
+    pool.spawn(async move {
+        // do some job
+    }).await.unwrap();
+}
 ```
 
 ## More tricks
