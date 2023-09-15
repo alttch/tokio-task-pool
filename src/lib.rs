@@ -180,7 +180,7 @@ impl Pool {
         self.with_spawn_timeout(timeout).with_run_timeout(timeout)
     }
     #[cfg(feature = "log")]
-    /// Disables internal error logging_enabled
+    /// Disables internal error logging
     #[inline]
     pub fn with_no_logging_enabled(mut self) -> Self {
         self.logging_enabled = false;
