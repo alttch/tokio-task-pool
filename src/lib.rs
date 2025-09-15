@@ -84,6 +84,7 @@ pub enum Error {
     SpawnTimeout,
     RunTimeout(Option<TaskId>),
     SpawnSemaphoneAcquireError,
+    NotAvailable,
 }
 
 impl fmt::Display for Error {
@@ -98,6 +99,7 @@ impl fmt::Display for Error {
                 }
             }
             Error::SpawnSemaphoneAcquireError => write!(f, "task spawn semaphore error"),
+            Error::NotAvailable => write!(f, "no available task slots"),
         }
     }
 }
@@ -243,6 +245,66 @@ impl Pool {
             } else {
                 Some(limiter.clone().acquire_owned().await?)
             }
+        } else {
+            None
+        };
+        if let Some(rtimeout) = task.timeout.or(self.run_timeout) {
+            #[cfg(feature = "log")]
+            let logging_enabled = self.logging_enabled;
+            Ok(tokio::spawn(async move {
+                let _p = perm;
+                if let Ok(v) = tokio::time::timeout(rtimeout, task.future).await {
+                    Ok(v)
+                } else {
+                    let e = Error::RunTimeout(task.id);
+                    #[cfg(feature = "log")]
+                    if logging_enabled {
+                        error!("{}: {}", id.as_deref().map_or("", |v| v.as_str()), e);
+                    }
+                    Err(e)
+                }
+            }))
+        } else {
+            Ok(tokio::spawn(async move {
+                let _p = perm;
+                Ok(task.future.await)
+            }))
+        }
+    }
+    /// Tries to spawn a future if there is an available permit. Returns `Error::NotAvailable` if no
+    /// permit available
+    pub fn try_spawn<T>(&self, future: T) -> SpawnResult<T>
+    where
+        T: Future + Send + 'static,
+        T::Output: Send + 'static,
+    {
+        self.try_spawn_task(Task::new(future))
+    }
+    /// Tries to spawn a future with a custom timeout if there is an available permit. Returns
+    /// `Error::NotAvailable` if no permit available
+    pub fn try_spawn_with_timeout<T>(&self, future: T, timeout: Duration) -> SpawnResult<T>
+    where
+        T: Future + Send + 'static,
+        T::Output: Send + 'static,
+    {
+        self.try_spawn_task(Task::new(future).with_timeout(timeout))
+    }
+    /// Spawns a task (a future which can have a custom ID and timeout) if there is an available
+    /// permit. Returns `Error::NotAvailable` if no permit available
+    pub fn try_spawn_task<T>(&self, task: Task<T>) -> SpawnResult<T>
+    where
+        T: Future + Send + 'static,
+        T::Output: Send + 'static,
+    {
+        #[cfg(feature = "log")]
+        let id = self.id.as_ref().cloned();
+        let perm = if let Some(ref limiter) = self.limiter {
+            Some(
+                limiter
+                    .clone()
+                    .try_acquire_owned()
+                    .map_err(|_| Error::NotAvailable)?,
+            )
         } else {
             None
         };
