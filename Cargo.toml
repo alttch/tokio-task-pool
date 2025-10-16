@@ -9,6 +9,9 @@ description = "Task pool for Tokio Runtime"
 readme = "README.md"
 keywords = ["tokio", "task", "safe", "pool"]
 
+[workspace.dependencies]
+tokio = { version = "1.32.0", default-features = false }
+
 [package.metadata.docs.rs]
 features = ["log"]
 
@@ -16,5 +19,8 @@ features = ["log"]
 features = ["log"]
 
 [dependencies]
-log = { version = "0.4.20", optional = true }
-tokio = { version = "1.32.0", features = ["full"] }
+log = { version = "0.4.20", default-features = false , optional = true }
+tokio = { workspace = true, default-features = false, features = ["rt", "sync", "time"] }
+
+[dev-dependencies]
+tokio = { workspace = true, default-features = false, features = ["macros", "rt-multi-thread"] }
