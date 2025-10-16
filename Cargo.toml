@@ -10,10 +10,10 @@ readme = "README.md"
 keywords = ["tokio", "task", "safe", "pool"]
 
 [package.metadata.docs.rs]
-features = ["log"]
+features = ["log", "tracing"]
 
 [package.metadata.playground]
-features = ["log"]
+features = ["log", "tracing"]
 
 [workspace.dependencies]
 tokio = { version = "1.32.0", default-features = false }
@@ -21,6 +21,7 @@ tokio = { version = "1.32.0", default-features = false }
 [dependencies]
 log = { version = "0.4.20", default-features = false , optional = true }
 tokio = { workspace = true, default-features = false, features = ["rt", "sync", "time"] }
+tracing = { version = "0.1.41", default-features = false , optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true, default-features = false, features = ["macros", "rt-multi-thread"] }
