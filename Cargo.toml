@@ -1,6 +1,6 @@
 [package]
 name = "tokio-task-pool"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Serhij S. <div@altertech.com>"]
 edition = "2021"
 license = "MIT"
@@ -9,14 +9,14 @@ description = "Task pool for Tokio Runtime"
 readme = "README.md"
 keywords = ["tokio", "task", "safe", "pool"]
 
-[workspace.dependencies]
-tokio = { version = "1.32.0", default-features = false }
-
 [package.metadata.docs.rs]
 features = ["log"]
 
 [package.metadata.playground]
 features = ["log"]
+
+[workspace.dependencies]
+tokio = { version = "1.32.0", default-features = false }
 
 [dependencies]
 log = { version = "0.4.20", default-features = false , optional = true }
