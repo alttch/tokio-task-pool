@@ -7,6 +7,8 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Semaphore;
 use tokio::task::JoinHandle;
+#[cfg(feature = "tracing")]
+use tracing::{event, Level};
 
 pub type SpawnResult<T> = Result<JoinHandle<Result<<T as Future>::Output, Error>>, Error>;
 
@@ -120,7 +122,7 @@ pub struct Pool {
     run_timeout: Option<Duration>,
     limiter: Option<Arc<Semaphore>>,
     capacity: Option<usize>,
-    #[cfg(feature = "log")]
+    #[cfg(any(feature = "log", feature = "tracing"))]
     logging_enabled: bool,
 }
 
@@ -139,7 +141,7 @@ impl Pool {
             run_timeout: None,
             limiter: Some(Arc::new(Semaphore::new(capacity))),
             capacity: Some(capacity),
-            #[cfg(feature = "log")]
+            #[cfg(any(feature = "log", feature = "tracing"))]
             logging_enabled: true,
         }
     }
@@ -151,7 +153,7 @@ impl Pool {
             run_timeout: None,
             limiter: None,
             capacity: None,
-            #[cfg(feature = "log")]
+            #[cfg(any(feature = "log", feature = "tracing"))]
             logging_enabled: true,
         }
     }
@@ -181,7 +183,7 @@ impl Pool {
     pub fn with_timeout(self, timeout: Duration) -> Self {
         self.with_spawn_timeout(timeout).with_run_timeout(timeout)
     }
-    #[cfg(feature = "log")]
+    #[cfg(any(feature = "log", feature = "tracing"))]
     /// Disables internal error logging
     #[inline]
     pub fn with_no_logging_enabled(mut self) -> Self {
@@ -233,7 +235,7 @@ impl Pool {
         T: Future + Send + 'static,
         T::Output: Send + 'static,
     {
-        #[cfg(feature = "log")]
+        #[cfg(any(feature = "log", feature = "tracing"))]
         let id = self.id.as_ref().cloned();
         let perm = if let Some(ref limiter) = self.limiter {
             if let Some(spawn_timeout) = self.spawn_timeout {
@@ -249,7 +251,7 @@ impl Pool {
             None
         };
         if let Some(rtimeout) = task.timeout.or(self.run_timeout) {
-            #[cfg(feature = "log")]
+            #[cfg(any(feature = "log", feature = "tracing"))]
             let logging_enabled = self.logging_enabled;
             Ok(tokio::spawn(async move {
                 let _p = perm;
@@ -257,9 +259,17 @@ impl Pool {
                     Ok(v)
                 } else {
                     let e = Error::RunTimeout(task.id);
-                    #[cfg(feature = "log")]
+                    #[cfg(any(feature = "log", feature = "tracing"))]
                     if logging_enabled {
+                        #[cfg(feature = "log")]
                         error!("{}: {}", id.as_deref().map_or("", |v| v.as_str()), e);
+
+                        #[cfg(feature = "tracing")]
+                        event!(
+                            Level::ERROR,
+                            error = ?e,
+                            id = id.as_deref().map_or("", |v| v.as_str())
+                        );
                     }
                     Err(e)
                 }
@@ -296,7 +306,7 @@ impl Pool {
         T: Future + Send + 'static,
         T::Output: Send + 'static,
     {
-        #[cfg(feature = "log")]
+        #[cfg(any(feature = "log", feature = "tracing"))]
         let id = self.id.as_ref().cloned();
         let perm = if let Some(ref limiter) = self.limiter {
             Some(
@@ -309,7 +319,7 @@ impl Pool {
             None
         };
         if let Some(rtimeout) = task.timeout.or(self.run_timeout) {
-            #[cfg(feature = "log")]
+            #[cfg(any(feature = "log", feature = "tracing"))]
             let logging_enabled = self.logging_enabled;
             Ok(tokio::spawn(async move {
                 let _p = perm;
@@ -317,9 +327,17 @@ impl Pool {
                     Ok(v)
                 } else {
                     let e = Error::RunTimeout(task.id);
-                    #[cfg(feature = "log")]
+                    #[cfg(any(feature = "log", feature = "tracing"))]
                     if logging_enabled {
+                        #[cfg(feature = "log")]
                         error!("{}: {}", id.as_deref().map_or("", |v| v.as_str()), e);
+
+                        #[cfg(feature = "tracing")]
+                        event!(
+                            Level::ERROR,
+                            error = ?e,
+                            id = id.as_deref().map_or("", |v| v.as_str())
+                        );
                     }
                     Err(e)
                 }

@@ -65,5 +65,6 @@ Refer to the crate documentation.
 
 ## Features
 
-* A "log" feature enables automatic error logging for timed out tasks (via the
-*log* crate)
+* `log`: enables automatic error logging for timed out tasks via the *[log](https://docs.rs/log/latest/log/)* crate
+
+* `tracing`: like `log`, but uses the *[tracing](https://docs.rs/tracing/latest/tracing/)* crate
